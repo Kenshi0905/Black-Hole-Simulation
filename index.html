@@ -3,21 +3,21 @@
 <head>
     <title>Black Hole Simulation</title>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="stylesheet" href="styles.css">
     <!-- All images now loaded from assets/ folder -->
 </head>
 <body>
     <div id="welcome-overlay" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.97);z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:1;transition:opacity 0.8s cubic-bezier(.77,0,.18,1);overflow:hidden;">
-        <canvas id="starfield-canvas" style="position:absolute;top:0;left:0;width:100vw;height:100vh;z-index:0;"></canvas>
-        <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100vw;">
-            <div style="color:#fff;font-family:'Didot','Linotype Didot',serif;font-size:3.2em;letter-spacing:0.04em;text-align:center;font-weight:700;text-shadow:0 0 32px #fff,0 0 8px #b3e0ff;animation:glow 2.5s infinite alternate;">
+        <canvas id="starfield-canvas" style="position:absolute;top:0;left:0;width:100vw;height:100vh;z-index:0;touch-action:none;"></canvas>
+        <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100vw;max-width:95vw;">
+            <div style="color:#fff;font-family:'Didot','Linotype Didot',serif;font-size:3.2em;letter-spacing:0.04em;text-align:center;font-weight:700;text-shadow:0 0 32px #fff,0 0 8px #b3e0ff;animation:glow 2.5s infinite alternate;max-width:90vw;">
                 Welcome to a Black Hole Simulation
             </div>
-            <div id="continue-prompt" style="color:#ffcc00;font-family:'Didot','Linotype Didot',serif;font-size:1.3em;margin-top:2em;text-align:center;text-shadow:0 0 8px #ffcc00;">
+            <div id="continue-prompt" style="color:#ffcc00;font-family:'Didot','Linotype Didot',serif;font-size:1.3em;margin-top:2em;text-align:center;text-shadow:0 0 8px #ffcc00;max-width:90vw;">
                 <!-- Text will be set by JS -->
             </div>
-            <div style="color:#b3e0ff;font-family:'Didot','Linotype Didot',serif;font-size:1.1em;margin-top:2.5em;text-align:center;max-width:600px;opacity:0.8;">
+            <div style="color:#b3e0ff;font-family:'Didot','Linotype Didot',serif;font-size:1.1em;margin-top:2.5em;text-align:center;max-width:90vw;opacity:0.8;">
                 "Love is the one thing that transcends time and space."<br><span style="font-size:0.8em;opacity:0.7;">— Interstellar</span>
             </div>
         </div>
@@ -32,7 +32,7 @@
     
     <div class="info">
         <div id="hint-text">
-            🌌 Drag to orbit • Scroll to zoom • Watch light bend around the black hole
+            🌌 Drag/Swipe to orbit • Scroll/Pinch to zoom • Watch light bend around the black hole
         </div>
     </div>
     <div id="fps-counter" style="position:fixed;top:6px;left:6px;z-index:9999;color:#fff;background:rgba(0,0,0,0.55);padding:1px 5px;border-radius:3px;font-size:9px;font-family:monospace;font-weight:bold;box-shadow:0 1px 2px #000;line-height:1;">FPS: --</div>
@@ -65,15 +65,15 @@
             </div>
             <div class="control-group">
                 <label>Observer Distance: <span class="value-display" id="distance_value">12.0</span></label>
-                <input type="range" id="observer_distance" min="3.0" max="25.0" step="0.1" value="12.0">
+                <input type="range" id="observer_distance" min="3.0" max="25.0" step="0.1" value="12.0" style="touch-action: pan-x;">
             </div>
             <div class="control-group">
                 <label>Black Hole Mass: <span class="value-display" id="mass_value">1.0</span></label>
-                <input type="range" id="black_hole_mass" min="0.5" max="3.0" step="0.1" value="1.0">
+                <input type="range" id="black_hole_mass" min="0.5" max="3.0" step="0.1" value="1.0" style="touch-action: pan-x;">
             </div>
             <div class="control-group">
                 <label>Time Scale: <span class="value-display" id="time_value">1.0</span></label>
-                <input type="range" id="time_scale" min="0.0" max="3.0" step="0.1" value="1.0">
+                <input type="range" id="time_scale" min="0.0" max="3.0" step="0.1" value="1.0" style="touch-action: pan-x;">
             </div>
             <div class="control-group">
                 <label>Quality: 
@@ -87,7 +87,7 @@
             </div>
             <div class="control-group">
                 <label>Disk Brightness: <span class="value-display" id="disk_brightness_value">2.0</span></label>
-                <input type="range" id="disk_brightness" min="0.5" max="5.0" step="0.1" value="2.0">
+                <input type="range" id="disk_brightness" min="0.5" max="5.0" step="0.1" value="2.0" style="touch-action: pan-x;">
             </div>
             <div class="control-group">
                 <label>Custom Background: <input type="file" id="custom_bg" accept="image/*"></label>
@@ -99,12 +99,65 @@
     </div>
 
     <div style="position: fixed; bottom: 10px; left: 0; width: 100%; text-align: center; z-index: 200;">
-        <span style="color: #ffcc00; background: rgba(0,0,0,0.8); padding: 8px 16px; border-radius: 6px; font-size: 15px; font-weight: bold;">
+        <span style="color: #ffcc00; background: rgba(0,0,0,0.8); padding: 8px 16px; border-radius: 6px; font-size: 15px; font-weight: bold;max-width:85vw;display:inline-block;">
             ⚠️ For best results, switch Quality to <span style="color:#fff">High</span> or <span style="color:#fff">Ultra</span>! Medium may not show all simulation details.
         </span>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="app.js"></script>
+    <script>
+    // Mobile usability enhancements
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-hide controls on mobile by default
+        if(window.innerWidth < 700) {
+            document.getElementById('controls-content').style.display = 'none';
+        }
+        
+        // Make range sliders easier to use on mobile
+        var ranges = document.querySelectorAll('input[type="range"]');
+        ranges.forEach(function(r) {
+            if(window.innerWidth < 700) {
+                r.style.height = '40px';
+                r.style.width = '100%';
+                r.style.boxSizing = 'border-box';
+            }
+        });
+        
+        // Hide system info and FPS on mobile
+        if(window.innerWidth < 600) {
+            var info = document.getElementById('sys-info');
+            var fps = document.getElementById('fps-counter');
+            if(info) info.style.display = 'none';
+            if(fps) fps.style.display = 'none';
+        }
+        
+        // Auto-close controls after interaction on mobile
+        if(window.innerWidth < 700) {
+            var controls = document.querySelectorAll('.control-group input, .control-group select');
+            controls.forEach(function(control) {
+                control.addEventListener('change', function() {
+                    setTimeout(function() {
+                        if(window.innerWidth < 700) {
+                            document.getElementById('controls-content').style.display = 'none';
+                        }
+                    }, 2000);
+                });
+            });
+        }
+        
+        // Ensure proper scaling on orientation change
+        window.addEventListener('orientationchange', function() {
+            setTimeout(function() {
+                if(window.innerWidth < 700) {
+                    var controlsPanel = document.getElementById('controls-content');
+                    if(controlsPanel) {
+                        controlsPanel.style.width = '85vw';
+                        controlsPanel.style.right = '2.5vw';
+                    }
+                }
+            }, 100);
+        });
+    });
     </script>
 </body>
 </html>

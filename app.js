@@ -599,6 +599,13 @@ document.addEventListener('keydown', function(e) {
         function setupMouseControls() {
             const canvas = renderer.domElement;
             
+            // Variables for touch support
+            let touchStartX = 0, touchStartY = 0;
+            let touchStartDistance = 0;
+            let isTouching = false;
+            let multiTouch = false;
+            
+            // Mouse events
             canvas.addEventListener('mousedown', (e) => {
                 isMouseDown = true;
                 mouseX = e.clientX;
@@ -641,7 +648,83 @@ document.addEventListener('keydown', function(e) {
                 updateCamera();
             });
             
+            // Touch events for mobile
+            canvas.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                isTouching = true;
+                
+                if (e.touches.length === 1) {
+                    // Single touch - rotation
+                    multiTouch = false;
+                    touchStartX = e.touches[0].clientX;
+                    touchStartY = e.touches[0].clientY;
+                } else if (e.touches.length === 2) {
+                    // Multi-touch - zoom
+                    multiTouch = true;
+                    const touch1 = e.touches[0];
+                    const touch2 = e.touches[1];
+                    touchStartDistance = Math.sqrt(
+                        Math.pow(touch2.clientX - touch1.clientX, 2) +
+                        Math.pow(touch2.clientY - touch1.clientY, 2)
+                    );
+                }
+            }, { passive: false });
+            
+            canvas.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                
+                if (!isTouching) return;
+                
+                if (e.touches.length === 1 && !multiTouch) {
+                    // Single touch rotation
+                    const deltaX = e.touches[0].clientX - touchStartX;
+                    const deltaY = e.touches[0].clientY - touchStartY;
+                    
+                    cameraTheta -= deltaX * 0.008;
+                    cameraPhi = Math.max(0.1, Math.min(Math.PI - 0.1, cameraPhi - deltaY * 0.008));
+                    
+                    touchStartX = e.touches[0].clientX;
+                    touchStartY = e.touches[0].clientY;
+                    
+                    updateCamera();
+                } else if (e.touches.length === 2) {
+                    // Multi-touch zoom
+                    const touch1 = e.touches[0];
+                    const touch2 = e.touches[1];
+                    const currentDistance = Math.sqrt(
+                        Math.pow(touch2.clientX - touch1.clientX, 2) +
+                        Math.pow(touch2.clientY - touch1.clientY, 2)
+                    );
+                    
+                    const distanceDelta = currentDistance - touchStartDistance;
+                    const zoomSpeed = 0.02;
+                    cameraDistance = Math.max(3.0, Math.min(25.0, cameraDistance - distanceDelta * zoomSpeed));
+                    
+                    document.getElementById('observer_distance').value = cameraDistance;
+                    document.getElementById('distance_value').textContent = cameraDistance.toFixed(1);
+                    
+                    touchStartDistance = currentDistance;
+                    updateCamera();
+                }
+            }, { passive: false });
+            
+            canvas.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                if (e.touches.length === 0) {
+                    isTouching = false;
+                    multiTouch = false;
+                }
+            }, { passive: false });
+            
+            canvas.addEventListener('touchcancel', (e) => {
+                e.preventDefault();
+                isTouching = false;
+                multiTouch = false;
+            }, { passive: false });
+            
+            // Set canvas style
             canvas.style.cursor = 'grab';
+            canvas.style.touchAction = 'none'; // Prevent default touch behaviors
         }
         
         function updateCamera() {
@@ -769,7 +852,7 @@ window.addEventListener('DOMContentLoaded', function() {
     var prompt = document.getElementById('continue-prompt');
     if (prompt) {
         if (isMobile()) {
-            prompt.innerHTML = 'Tap anywhere to continue';
+            prompt.innerHTML = 'Tap anywhere to continue<br><small style="font-size:0.8em;opacity:0.7;">Swipe to orbit • Pinch to zoom</small>';
         } else {
             prompt.innerHTML = 'Press <span style="background:#222;padding:0.2em 0.5em;border-radius:4px;color:#fff;box-shadow:0 0 8px #fff;">↑</span> Arrow Up to continue';
         }
